@@ -1,26 +1,37 @@
-import React, { Suspense } from "react";
-import { BrowserRouter, Route, Switch, Redirect, Link } from "react-router-dom";
+import productsApi from "api/productsApi";
+import React, { Suspense, useState, useEffect } from "react";
+import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
 import "./App.css";
+import Header from "./components/Header";
 import NotFound from "./components/NotFound";
 
 const Photo = React.lazy(() => import("./features/Photo"));
 
 function App() {
+  const [productList, setProductList] = useState([]);
+
+  useEffect(() => {
+    const getProductListApi = async () => {
+      try {
+        const params = {
+          _page: 1,
+          _limit: 10,
+        };
+        const response = await productsApi.getAll(params);
+        console.log(response)
+        setProductList(response)
+      } catch (error) {
+        console.log('Failed to fetch product list: ', error)
+      }
+    }
+    getProductListApi()
+  }, [])
+
   return (
     <div className="photo-app">
       <Suspense fallback={<div>Loading...</div>}>
         <BrowserRouter>
-          <ul>
-            <li>
-              <Link to="/photos">Go to photo page</Link>
-            </li>
-            <li>
-              <Link to="/photos/add">Go to Add new photo page</Link>
-            </li>
-            <li>
-              <Link to="/photos/123">Go to Edit photo page</Link>
-            </li>
-          </ul>
+          <Header />
 
           <Switch>
             <Redirect exact from="/" to="/photos" />
